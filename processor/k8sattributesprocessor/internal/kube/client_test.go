@@ -509,6 +509,7 @@ func TestExtractionRules(t *testing.T) {
 			},
 			Annotations: map[string]string{
 				"annotation1": "av1",
+				"annotation2": "av2",
 			},
 			OwnerReferences: []meta_v1.OwnerReference{
 				{
@@ -727,6 +728,48 @@ func TestExtractionRules(t *testing.T) {
 			},
 			attributes: map[string]string{
 				"k8s.pod.annotations.annotation1": "av1",
+				"k8s.pod.annotations.annotation2": "av2",
+			},
+		},
+		{
+			name: "specific KeyRegex match",
+			rules: ExtractionRules{
+				Annotations: []FieldExtractionRule{{
+					KeyRegex: regexp.MustCompile("^(?:an.*2)$"),
+					From:     MetadataFromPod,
+				},
+				},
+			},
+			attributes: map[string]string{
+				"k8s.pod.annotations.annotation2": "av2",
+			},
+		},
+		{
+			name: "specific KeyRegex match with name",
+			rules: ExtractionRules{
+				Annotations: []FieldExtractionRule{{
+					Name:     "annotation_v2",
+					KeyRegex: regexp.MustCompile("^(?:an.*2)$"),
+					From:     MetadataFromPod,
+				},
+				},
+			},
+			attributes: map[string]string{
+				"annotation_v2": "av2",
+			},
+		},
+		{
+			name: "duplicate KeyRegex match with specific name",
+			rules: ExtractionRules{
+				Annotations: []FieldExtractionRule{{
+					Name:     "annotation",
+					KeyRegex: regexp.MustCompile("^(?:an.*)$"),
+					From:     MetadataFromPod,
+				},
+				},
+			},
+			attributes: map[string]string{
+				"annotation": "av2",
 			},
 		},
 		{
@@ -753,6 +796,7 @@ func TestExtractionRules(t *testing.T) {
 			},
 			attributes: map[string]string{
 				"1": "av1",
+				"2": "av2",
 			},
 		},
 		{
@@ -768,6 +812,7 @@ func TestExtractionRules(t *testing.T) {
 			},
 			attributes: map[string]string{
 				"prefix-annotation1": "av1",
+				"prefix-annotation2": "av2",
 			},
 		},
 	}
